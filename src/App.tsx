@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.scss';
+import { ChessBoard } from './ChessBoard';
 
 class ApiError extends Error {
 	public status: string;
@@ -67,6 +68,9 @@ function App(): JSX.Element {
 				<h2>Ajax!</h2>
 				<p>Getting message from the server</p>
 				{ajaxMsg}
+			</section>
+			<section>
+				<ChessBoard></ChessBoard>
 			</section>
 			<section>
 				<h2>This is a section of the page</h2>
