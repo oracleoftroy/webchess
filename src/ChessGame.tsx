@@ -134,7 +134,12 @@ export function ChessGame(): JSX.Element {
 	};
 
 	const promoteTo = (piece: 'n' | 'b' | 'r' | 'q'): void => {
-		const result = chess.move({ ...choosePromotion, promotion: piece } as ShortMove);
+		// Edge doesn't currently understand { ...choosePromotion, promotion: piece }, which breaks dev
+		const result = chess.move({
+			from: choosePromotion?.from,
+			to: choosePromotion?.to,
+			promotion: piece,
+		} as ShortMove);
 
 		setChoosePromotion(null);
 		updateGameState(result === null);
