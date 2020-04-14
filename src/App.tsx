@@ -15,6 +15,10 @@ function App(): JSX.Element {
 			</main>
 			<footer>
 				<p>&copy;Marc Gallagher 2020 - All Rights Reserved</p>
+				<p>
+					Chess pieces by Cburnett used under the terms of{' '}
+					<a href="https://creativecommons.org/licenses/by-sa/3.0/legalcode">CC BY-SA 3.0</a>
+				</p>
 			</footer>
 		</div>
 	);

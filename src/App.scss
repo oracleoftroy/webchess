@@ -9,6 +9,7 @@
 	justify-content: center;
 	font-size: calc(10px + 2vmin);
 	color: white;
+	border-radius: 15px 15px 0 0;
 }
 
 .app > main {
@@ -26,8 +27,13 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	padding: 10px;
+	border-radius: 0 0 15px 15px;
 }
 
-.App-link {
+.app > footer a {
 	color: #61dafb;
+}
+.app > footer p {
+	margin: 2px;
 }
