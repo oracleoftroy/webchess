@@ -1,0 +1,17 @@
+{
+	"name": "web-chess",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "concurrently \"npm:server\" \"npm:www\"",
+		"server": "node run-server.js",
+		"www": "node run-client.js"
+	},
+	"author": "Marc Gallagher",
+	"license": "ISC",
+	"dependencies": {
+		"concurrently": "^5.1.0"
+	}
+}
