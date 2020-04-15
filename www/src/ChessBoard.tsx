@@ -1,6 +1,6 @@
 import './ChessBoard.scss';
-import React, { useState, useEffect, MouseEvent, DragEvent } from 'react';
-import pieceSprite from './Chess_Pieces_Sprite.svg';
+import React, { useState, useEffect, MouseEvent, DragEvent, useCallback } from 'react';
+import piecesSpriteSrc from './Chess_Pieces_Sprite.svg';
 import { Pos, Piece, PiecePos, pieceAtPos, equals } from './ChessUiLogic';
 
 const PIECE_SPRITE_WIDTH = 45;
@@ -28,31 +28,44 @@ export function ChessBoard({
 	onMoveCompleted,
 	onMoveCancelled,
 }: ChessBoardProps): JSX.Element {
-	const [piecesReady, setPiecesReady] = useState(false);
+	const chessBoardRef = React.createRef<HTMLCanvasElement>();
+	const chessPiecesRef = React.createRef<HTMLCanvasElement>();
+	const chessUiRef = React.createRef<HTMLCanvasElement>();
+	const offscreenRef = React.createRef<HTMLCanvasElement>();
+
 	const [mouseBoardPos, setMouseBoardPos] = useState<Pos | null>(null);
 	const [dragStartBoardPos, setDragStartBoardPos] = useState<Pos | null>(null);
+	const [piecesSpriteReady, setPiecesSpriteReady] = useState(false);
 	const [pieceDragImages, setPieceDragImages] = useState<HTMLImageElement[][] | null>(null);
-
-	const piecesSprite = new Image();
-	piecesSprite.onload = (): void => setPiecesReady(true);
-	piecesSprite.src = pieceSprite;
+	const [piecesSprite] = useState<HTMLImageElement>(() => {
+		const img = new Image();
+		img.onload = (): void => setPiecesSpriteReady(true);
+		img.src = piecesSpriteSrc;
+		return img;
+	});
 
 	const fromBoardPos = (pos: Pos): Pos => [pos[0] * SQUARE_WIDTH, pos[1] * SQUARE_HEIGHT];
 	const toBoardPos = (pos: Pos): Pos => [Math.floor(pos[0] / SQUARE_WIDTH), Math.floor(pos[1] / SQUARE_HEIGHT)];
+	const posOnBoard = (pos: Pos): boolean => pos[0] >= 0 && pos[0] < 8 && pos[1] >= 0 && pos[1] < 8;
 
-	const drawPiece = (context: CanvasRenderingContext2D, piece: Piece, pos: Pos): void => {
-		context.drawImage(
-			piecesSprite,
-			piece[1] * PIECE_SPRITE_WIDTH,
-			piece[0] * PIECE_SPRITE_HEIGHT,
-			PIECE_SPRITE_WIDTH,
-			PIECE_SPRITE_HEIGHT,
-			pos[0],
-			pos[1],
-			SQUARE_WIDTH,
-			SQUARE_HEIGHT,
-		);
-	};
+	const drawPiece = useCallback(
+		(context: CanvasRenderingContext2D, piece: Piece, pos: Pos): void => {
+			if (!piecesSpriteReady) return;
+
+			context.drawImage(
+				piecesSprite,
+				piece[1] * PIECE_SPRITE_WIDTH,
+				piece[0] * PIECE_SPRITE_HEIGHT,
+				PIECE_SPRITE_WIDTH,
+				PIECE_SPRITE_HEIGHT,
+				pos[0],
+				pos[1],
+				SQUARE_WIDTH,
+				SQUARE_HEIGHT,
+			);
+		},
+		[piecesSprite, piecesSpriteReady],
+	);
 
 	const getMousePos = (canvas: HTMLCanvasElement, event: MouseEvent): Pos => {
 		const rect = canvas.getBoundingClientRect();
@@ -61,13 +74,6 @@ export function ChessBoard({
 			((event.clientY - rect.top) / (rect.bottom - rect.top)) * canvas.height,
 		];
 	};
-
-	const chessBoardRef = React.createRef<HTMLCanvasElement>();
-	const chessPiecesRef = React.createRef<HTMLCanvasElement>();
-	const chessUiRef = React.createRef<HTMLCanvasElement>();
-	const offscreenRef = React.createRef<HTMLCanvasElement>();
-
-	const posOnBoard = (pos: Pos): boolean => pos[0] >= 0 && pos[0] < 8 && pos[1] >= 0 && pos[1] < 8;
 
 	const onMouseMove = (e: MouseEvent): void => {
 		const canvas = chessBoardRef.current;
@@ -87,22 +93,6 @@ export function ChessBoard({
 		if (!equals(pos, mouseBoardPos)) {
 			setMouseBoardPos(pos);
 		}
-	};
-
-	const makeDragImages = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): void => {
-		const images: HTMLImageElement[][] = [[], []];
-
-		for (let side = 0; side < 2; ++side) {
-			for (let piece = 0; piece < 6; ++piece) {
-				const img = (images[side][piece] = new Image());
-				img.className = 'dragging';
-				context.clearRect(0, 0, SQUARE_WIDTH, SQUARE_HEIGHT);
-				drawPiece(context, [side, piece], [0, 0]);
-				img.src = canvas.toDataURL();
-			}
-		}
-
-		setPieceDragImages(images);
 	};
 
 	const onDragStart = (e: DragEvent): void => {
@@ -168,6 +158,7 @@ export function ChessBoard({
 
 	const onDrop = (e: DragEvent): void => {
 		e.preventDefault();
+		console.log('drop');
 
 		const canvas = chessPiecesRef.current;
 		if (!canvas) {
@@ -205,7 +196,7 @@ export function ChessBoard({
 				context.strokeRect(x * SQUARE_WIDTH, y * SQUARE_HEIGHT, SQUARE_WIDTH, SQUARE_HEIGHT);
 			}
 		}
-	}, []);
+	}, [chessBoardRef]);
 
 	useEffect(() => {
 		const canvas = chessPiecesRef.current;
@@ -219,7 +210,7 @@ export function ChessBoard({
 		for (const pieceLoc of pieceLocations) {
 			drawPiece(context, pieceLoc[0], fromBoardPos(pieceLoc[1]));
 		}
-	}, [piecesReady, pieceLocations]);
+	}, [chessPiecesRef, pieceLocations, drawPiece]);
 
 	useEffect(() => {
 		const canvas = chessUiRef.current;
@@ -254,16 +245,32 @@ export function ChessBoard({
 				context.strokeRect(x, y, SQUARE_WIDTH, SQUARE_HEIGHT);
 			}
 		}
-	}, [mouseBoardPos, dragStartBoardPos, possibleMoves]);
+	}, [chessUiRef, mouseBoardPos, dragStartBoardPos, possibleMoves]);
 
 	useEffect(() => {
+		// if we've already created the images, no need to do it again
+		if (pieceDragImages) return;
+
 		const canvas = offscreenRef.current;
-		const context = canvas?.getContext('2d');
+		if (!canvas) return;
 
-		if (!canvas || !context) return;
+		const context = canvas.getContext('2d');
+		if (!context) return;
 
-		makeDragImages(canvas, context);
-	}, [piecesReady]);
+		const images: HTMLImageElement[][] = [[], []];
+
+		for (let side = 0; side < 2; ++side) {
+			for (let piece = 0; piece < 6; ++piece) {
+				const img = (images[side][piece] = new Image());
+				img.className = 'dragging';
+				context.clearRect(0, 0, SQUARE_WIDTH, SQUARE_HEIGHT);
+				drawPiece(context, [side, piece], [0, 0]);
+				img.src = canvas.toDataURL();
+			}
+		}
+
+		setPieceDragImages(images);
+	}, [offscreenRef, piecesSprite, piecesSpriteReady, drawPiece, pieceDragImages]);
 
 	return (
 		<div className="chess-game">
