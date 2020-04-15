@@ -1,0 +1,30 @@
+div.chess-game {
+	width: 640px;
+	height: 640px;
+	position: relative;
+}
+
+canvas.board-layer {
+	position: absolute;
+	z-index: 1;
+}
+
+canvas.game-layer {
+	position: absolute;
+	z-index: 2;
+}
+
+canvas.ui-layer {
+	position: absolute;
+	z-index: 3;
+
+	cursor: grab;
+}
+
+canvas.ui-layer:active {
+	cursor: grabbing;
+}
+
+canvas.offscreen-layer {
+	display: none;
+}
