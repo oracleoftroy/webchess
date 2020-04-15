@@ -248,8 +248,12 @@ export function ChessBoard({
 	}, [chessUiRef, mouseBoardPos, dragStartBoardPos, possibleMoves]);
 
 	useEffect(() => {
-		// if we've already created the images, no need to do it again
+		// React seems to love calling this effect repeatedly, but we only need it called
+		// if we don't yet have our drag images, so bail if we have them already
 		if (pieceDragImages) return;
+
+		// No point creating images if our sprite isn't ready
+		if (!piecesSpriteReady) return;
 
 		const canvas = offscreenRef.current;
 		if (!canvas) return;

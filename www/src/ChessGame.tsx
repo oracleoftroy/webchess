@@ -2,9 +2,10 @@ import './ChessGame.scss';
 import ChessPieces from './Chess_Pieces_Sprite.svg';
 import React, { useState } from 'react';
 import { ChessBoard } from './ChessBoard';
-import { PiecePos, Pos, Sides, mapPieceColor, mapPieceType } from './ChessUiLogic';
+import { PiecePos, Pos, Sides, mapPieceColor, mapPieceType, Pieces } from './ChessUiLogic';
 import { ChessInstance, Square, ShortMove } from 'chess.js';
 import { ChessGameOverReason, ChessGameOver } from './ChessGameOver';
+import { ChessPieceImg } from './ChessPieceImg';
 
 // a normal import statement seems to cause webpack to flip out. I have no idea why, but this works
 // see: https://stackoverflow.com/questions/58598457/not-a-constructor-error-with-library-and-angular
@@ -133,12 +134,19 @@ export function ChessGame(): JSX.Element {
 		setPossibleMoves(null);
 	};
 
-	const promoteTo = (piece: 'n' | 'b' | 'r' | 'q'): void => {
+	type PromotablePiece = Pieces.Queen | Pieces.Rook | Pieces.Bishop | Pieces.Knight;
+	const promotablePieces: PromotablePiece[] = [Pieces.Queen, Pieces.Rook, Pieces.Bishop, Pieces.Knight];
+
+	const promoteTo = (piece: PromotablePiece): void => {
+		let p: null | 'n' | 'b' | 'r' | 'q' = null;
+
+		p = piece == Pieces.Queen ? 'q' : piece == Pieces.Rook ? 'r' : piece == Pieces.Bishop ? 'b' : 'n';
+
 		// Edge doesn't currently understand { ...choosePromotion, promotion: piece }, which breaks dev
 		const result = chess.move({
 			from: choosePromotion?.from,
 			to: choosePromotion?.to,
-			promotion: piece,
+			promotion: p,
 		} as ShortMove);
 
 		setChoosePromotion(null);
@@ -151,38 +159,12 @@ export function ChessGame(): JSX.Element {
 				<div className="overlay">
 					<section className="chessboard-promotion">
 						<header>Choose Promotion</header>
-						<div onClick={(): void => promoteTo('q')}>
-							{playerSide === Sides.White ? (
-								<img className="chessgame-piece-img white-queen" src={ChessPieces} alt="queen" />
-							) : (
-								<img className="chessgame-piece-img black-queen" src={ChessPieces} alt="queen" />
-							)}
-							<p>Queen</p>
-						</div>
-						<div onClick={(): void => promoteTo('r')}>
-							{playerSide === Sides.White ? (
-								<img className="chessgame-piece-img white-rook" src={ChessPieces} alt="rook" />
-							) : (
-								<img className="chessgame-piece-img black-rook" src={ChessPieces} alt="rook" />
-							)}
-							<p>Rook</p>
-						</div>
-						<div onClick={(): void => promoteTo('b')}>
-							{playerSide === Sides.White ? (
-								<img className="chessgame-piece-img white-bishop" src={ChessPieces} alt="bishop" />
-							) : (
-								<img className="chessgame-piece-img black-bishop" src={ChessPieces} alt="bishop" />
-							)}
-							<p>Bishop</p>
-						</div>
-						<div onClick={(): void => promoteTo('n')}>
-							{playerSide === Sides.White ? (
-								<img className="chessgame-piece-img white-knight" src={ChessPieces} alt="knight" />
-							) : (
-								<img className="chessgame-piece-img black-knight" src={ChessPieces} alt="knight" />
-							)}
-							<p>Knight</p>
-						</div>
+						{promotablePieces.map((piece) => (
+							<div key={piece} onClick={(): void => promoteTo(piece)}>
+								<ChessPieceImg color={playerSide} piece={piece} />
+								<p>{Pieces[piece]}</p>
+							</div>
+						))}
 					</section>
 				</div>
 			)}
@@ -198,11 +180,8 @@ export function ChessGame(): JSX.Element {
 			<section className="chessgame-info">
 				<header>Status</header>
 				<section className="chessgame-state">
-					{status.isGameOver && (
-						<ChessGameOver
-							reason={gameOverReason! /* eslint-disable-line @typescript-eslint/no-non-null-assertion */}
-						></ChessGameOver>
-					)}
+					{/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+					{status.isGameOver && <ChessGameOver reason={gameOverReason!}></ChessGameOver>}
 					{!status.isGameOver && (
 						<section>
 							{status.currentPlayer === Sides.Black && (
