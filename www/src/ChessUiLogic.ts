@@ -16,23 +16,23 @@ export enum Pieces {
 
 export function mapPieceType(type: PieceType): Pieces {
 	switch (type) {
-	case 'p':
-		return Pieces.Pawn;
-	case 'n':
-		return Pieces.Knight;
-	case 'b':
-		return Pieces.Bishop;
-	case 'r':
-		return Pieces.Rook;
-	case 'q':
-		return Pieces.Queen;
-	case 'k':
-		return Pieces.King;
+		case 'p':
+			return Pieces.Pawn;
+		case 'n':
+			return Pieces.Knight;
+		case 'b':
+			return Pieces.Bishop;
+		case 'r':
+			return Pieces.Rook;
+		case 'q':
+			return Pieces.Queen;
+		case 'k':
+			return Pieces.King;
 	}
 }
 
 export function mapPieceColor(color: 'w' | 'b'): Sides {
-	return color == 'w' ? Sides.White : Sides.Black;
+	return color === 'w' ? Sides.White : Sides.Black;
 }
 
 // [x,y] coordinate in screen or board coordinates
@@ -56,4 +56,4 @@ export function equals(p1: any, p2: any): boolean {
 	else return p1[0] === p2[0] && p1[1] === p2[1];
 }
 
-export const pieceAtPos = (pos: Pos) => (p: PiecePos): boolean => p[1][0] == pos[0] && p[1][1] == pos[1];
+export const pieceAtPos = (pos: Pos) => (p: PiecePos): boolean => p[1][0] === pos[0] && p[1][1] === pos[1];

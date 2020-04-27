@@ -2,27 +2,28 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import express, { Application, NextFunction, Request, Response } from 'express';
-
+import path from 'path';
 import { config } from './config';
 import { log } from './logger';
-import path from 'path';
+import { WsServer } from './ws/wsServer';
 
 class Stream {
-	public write(text: string) {
+	public write(text: string): void {
 		log.info(text);
 	}
 }
 
-function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
+function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): void {
 	log.error(err);
 	res.status(500).json({ error: err }).end();
 }
 
 export class Server {
 	private app: Application;
+	private ws: WsServer | null = null;
 
 	constructor() {
 		const app = express();
@@ -46,9 +47,11 @@ export class Server {
 		this.app = app;
 	}
 
-	public listen() {
-		this.app.listen(config.port, () => {
+	public listen(): void {
+		const server = this.app.listen(config.port, () => {
 			log.info(`server started at http://localhost:${config.port}`);
 		});
+
+		this.ws = new WsServer(server);
 	}
 }

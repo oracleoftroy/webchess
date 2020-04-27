@@ -40,7 +40,7 @@ interface Status {
 
 function getStatus(chess: ChessInstance): Status {
 	return {
-		currentPlayer: chess.turn() == 'w' ? Sides.White : Sides.Black,
+		currentPlayer: chess.turn() === 'w' ? Sides.White : Sides.Black,
 		isGameOver: chess.game_over(),
 		isCheck: chess.in_check(),
 	};
@@ -140,7 +140,7 @@ export function ChessGame(): JSX.Element {
 	const promoteTo = (piece: PromotablePiece): void => {
 		let p: null | 'n' | 'b' | 'r' | 'q' = null;
 
-		p = piece == Pieces.Queen ? 'q' : piece == Pieces.Rook ? 'r' : piece == Pieces.Bishop ? 'b' : 'n';
+		p = piece === Pieces.Queen ? 'q' : piece === Pieces.Rook ? 'r' : piece === Pieces.Bishop ? 'b' : 'n';
 
 		// Edge doesn't currently understand { ...choosePromotion, promotion: piece }, which breaks dev
 		const result = chess.move({

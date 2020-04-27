@@ -6,7 +6,7 @@ import { config } from './config';
 import { log } from './logger';
 import { Server } from './server';
 
-function createCluster() {
+function createCluster(): void {
 	log.info('Initializing app');
 
 	try {
@@ -23,7 +23,7 @@ function createCluster() {
 	}
 }
 
-async function runServer() {
+async function runServer(): Promise<void> {
 	try {
 		const server = new Server();
 		server.listen();

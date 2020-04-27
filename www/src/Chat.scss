@@ -1,0 +1,31 @@
+.chat-section {
+	display: flex;
+	flex-direction: column;
+
+	p {
+		margin: 0.25em 0;
+	}
+}
+
+.chat-message {
+	display: inline-flex;
+	flex-direction: row;
+	align-items: baseline;
+
+	address {
+		display: inline;
+		font-weight: bold;
+	}
+}
+
+.chat-join-message,
+.chat-leave-message {
+	display: inline-flex;
+	flex-direction: row;
+	align-items: baseline;
+	font-style: italic;
+	address {
+		display: inline;
+		padding-right: 0.125em;
+	}
+}
