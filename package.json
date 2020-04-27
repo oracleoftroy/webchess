@@ -12,6 +12,6 @@
 	"author": "Marc Gallagher",
 	"license": "ISC",
 	"dependencies": {
-		"concurrently": "^5.1.0"
+		"concurrently": "^5.2.0"
 	}
 }
