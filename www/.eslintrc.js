@@ -11,7 +11,10 @@ module.exports = {
 		},
 	},
 	rules: {
-		indent: ['error', 'tab'],
+		// I prefer SwitchCase: 0, but prettier is stubborn and I don't want to fight right now
+		indent: ['error', 'tab', { SwitchCase: 1 }],
+		'@typescript-eslint/indent': ['error', 'tab', { SwitchCase: 1 }],
+
 		'react-hooks/rules-of-hooks': 'warn',
 		'react-hooks/exhaustive-deps': 'warn',
 	},
