@@ -12,10 +12,10 @@ function createWebSocket(): WebSocket {
 		console.error(`WebSocket closed, reconnecting...`);
 		setTimeout(createWebSocket, 5000);
 	};
-	ws.onerror = (e) => {
-		console.error(`WebSocket error: ${e}`);
-		setTimeout(createWebSocket, 5000);
-	};
+	// ws.onerror = (e) => {
+	// 	console.error(`WebSocket error: ${e}`);
+	// 	setTimeout(createWebSocket, 10000);
+	// };
 
 	return ws;
 }
