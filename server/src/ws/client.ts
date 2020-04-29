@@ -30,7 +30,10 @@ export class Client {
 	onUserInfo(info: UserInfoRequest): void {
 		if (this.username !== info.username || this.id !== info.id) {
 			this.$username = info.username;
-			this.$id = info.id || uuid();
+			if (!this.id) {
+				this.$id = info.id || uuid();
+			}
+			this.$id = info.id || this.$id || uuid();
 			this.send({ type: 'user-info', username: this.username, id: this.id } as UserInfoResponse);
 		}
 	}
