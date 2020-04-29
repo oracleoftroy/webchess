@@ -1,48 +1,48 @@
 import { Request, Response } from './protocol';
 
 export class WsClient {
-	private static $uri = process.env.REACT_APP_WSS_BASE_URI || window.location.href.replace(/http/, 'ws');
-	private $ws: WebSocket;
-	private $pendingMessages: Request[] = [];
+	private static uri = process.env.REACT_APP_WSS_BASE_URI || window.location.href.replace(/http/, 'ws');
+	private ws: WebSocket;
+	private pendingMessages: Request[] = [];
 
 	constructor() {
-		this.$ws = this.createWs();
+		this.ws = this.createWs();
 	}
 
 	public send(req: Request) {
-		if (this.$ws.readyState !== WebSocket.OPEN) {
-			this.$pendingMessages = [...this.$pendingMessages, req];
+		if (this.ws.readyState !== WebSocket.OPEN) {
+			this.pendingMessages = [...this.pendingMessages, req];
 		} else {
-			this.$ws.send(JSON.stringify(req));
+			this.ws.send(JSON.stringify(req));
 		}
 	}
 
 	// user callbacks
-	$onReset: (() => any) | null = null;
+	private onResetCallback: (() => any) | null = null;
 	public set onReset(value: () => any) {
-		this.$onReset = value;
+		this.onResetCallback = value;
 	}
 
 	private reset() {
-		if (this.$onReset) this.$onReset();
+		if (this.onResetCallback) this.onResetCallback();
 	}
 
-	$onResponse: ((res: Response) => any) | null = null;
+	onResponseCallback: ((res: Response) => any) | null = null;
 	public set onResponse(value: (res: Response) => any) {
-		this.$onResponse = value;
+		this.onResponseCallback = value;
 	}
 
 	private response(res: Response): void {
-		if (this.$onResponse) this.$onResponse(res);
+		if (this.onResponseCallback) this.onResponseCallback(res);
 	}
 
 	private createWs(): WebSocket {
-		const ws = new WebSocket(WsClient.$uri);
+		const ws = new WebSocket(WsClient.uri);
 		ws.onopen = () => this.open();
 		ws.onclose = () => {
 			this.reset();
 			console.error(`WebSocket closed, reconnecting...`);
-			setTimeout(() => (this.$ws = this.createWs()), 5000);
+			setTimeout(() => (this.ws = this.createWs()), 5000);
 		};
 		ws.onmessage = (e: MessageEvent) => {
 			this.response(JSON.parse(e.data) as Response);
@@ -52,9 +52,9 @@ export class WsClient {
 
 	// callback for websocket onopen
 	private open() {
-		for (let req of this.$pendingMessages) {
+		for (let req of this.pendingMessages) {
 			this.send(req);
 		}
-		this.$pendingMessages = [];
+		this.pendingMessages = [];
 	}
 }

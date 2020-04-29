@@ -5,26 +5,31 @@ export class Channel {
 	constructor(private name: string, private clients = new Map<string, Client>()) {}
 
 	addClient(client: Client): void {
-		if (client.username && client.id) {
-			this.clients.set(client.id, client);
-			this.sendToAll({ type: 'chat-join', channel: this.name, username: client.username, userid: client.id });
+		if (client.username && client.userid) {
+			this.clients.set(client.userid, client);
+			this.sendToAll({ type: 'chat-join', channel: this.name, username: client.username, userid: client.userid });
 		}
 	}
 
 	removeClient(client: Client): void {
-		if (client.username && client.id) {
-			this.sendToAll({ type: 'chat-leave', channel: this.name, username: client.username, userid: client.id });
-			this.clients.delete(client.id);
+		if (client.username && client.userid) {
+			this.sendToAll({
+				type: 'chat-leave',
+				channel: this.name,
+				username: client.username,
+				userid: client.userid,
+			});
+			this.clients.delete(client.userid);
 		}
 	}
 
 	onChat(sender: Client, request: SendChatRequest): void {
-		if (sender.username && sender.id) {
+		if (sender.username && sender.userid) {
 			this.sendToAll({
 				type: 'chat',
 				channel: this.name,
 				username: sender.username,
-				userid: sender.id,
+				userid: sender.userid,
 				msg: request.msg,
 			});
 		}

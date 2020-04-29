@@ -158,7 +158,6 @@ export function ChessBoard({
 
 	const onDrop = (e: DragEvent): void => {
 		e.preventDefault();
-		console.log('drop');
 
 		const canvas = chessPiecesRef.current;
 		if (!canvas) {

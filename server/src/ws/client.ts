@@ -4,20 +4,25 @@ import { log } from '../logger';
 import { v4 as uuid } from 'uuid';
 
 export class Client {
-	private $username?: string;
-	private $id?: string;
+	private name?: string;
+	private id?: string;
 
 	constructor(private client: WebSocket, private dispatcher: Dispatcher) {
 		// setup ping?
 
+		client.onclose = (e: CloseEvent): void => {
+			log.info(`Connection closed: ${e.reason}`);
+			dispatcher.onDisconnect(this);
+		};
+
 		client.onmessage = (e: MessageEvent): void => {
-			log.warn(`Message recieved: ${e.data}`);
+			log.info(`Message recieved: {e.data}`);
 
 			try {
 				const json = JSON.parse(e.data);
 				this.dispatcher.onRequest(this, json as Request);
 			} catch (e) {
-				log.error(`Error parsing client message: ${e}`);
+				log.error(`Error parsing client message: {e}`);
 				this.send({ type: 'error', msg: e.message });
 			}
 		};
@@ -28,21 +33,21 @@ export class Client {
 	}
 
 	onUserInfo(info: UserInfoRequest): void {
-		if (this.username !== info.username || this.id !== info.id) {
-			this.$username = info.username;
-			if (!this.id) {
-				this.$id = info.id || uuid();
+		if (this.username !== info.username || this.userid !== info.id) {
+			this.name = info.username;
+			if (!this.userid) {
+				this.id = info.id || uuid();
 			}
-			this.$id = info.id || this.$id || uuid();
-			this.send({ type: 'user-info', username: this.username, id: this.id } as UserInfoResponse);
+			this.id = info.id || this.id || uuid();
+			this.send({ type: 'user-info', username: this.username, id: this.userid } as UserInfoResponse);
 		}
 	}
 
 	get username(): string | undefined {
-		return this.$username;
+		return this.name;
 	}
 
-	get id(): string | undefined {
-		return this.$id;
+	get userid(): string | undefined {
+		return this.id;
 	}
 }
