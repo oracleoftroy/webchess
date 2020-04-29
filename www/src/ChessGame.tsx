@@ -160,7 +160,7 @@ export function ChessGame(): JSX.Element {
 					<section className="chessboard-promotion">
 						<header>Choose Promotion</header>
 						{promotablePieces.map((piece) => (
-							<div key={piece} onClick={(): void => promoteTo(piece)}>
+							<div key={piece} onClick={(): void => promoteTo(piece)} role="button">
 								<ChessPieceImg color={playerSide} piece={piece} />
 								<p>{Pieces[piece]}</p>
 							</div>
