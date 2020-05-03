@@ -1,5 +1,5 @@
 import './ChessBoard.scss';
-import React, { useState, useEffect, MouseEvent, DragEvent, useCallback } from 'react';
+import React, { useState, useEffect, MouseEvent, DragEvent, useCallback, useRef } from 'react';
 import piecesSpriteSrc from './Chess_Pieces_Sprite.svg';
 import { Pos, Piece, PiecePos, pieceAtPos, equals } from './ChessUiLogic';
 
@@ -28,10 +28,10 @@ export function ChessBoard({
 	onMoveCompleted,
 	onMoveCancelled,
 }: ChessBoardProps): JSX.Element {
-	const chessBoardRef = React.createRef<HTMLCanvasElement>();
-	const chessPiecesRef = React.createRef<HTMLCanvasElement>();
-	const chessUiRef = React.createRef<HTMLCanvasElement>();
-	const offscreenRef = React.createRef<HTMLCanvasElement>();
+	const chessBoardRef = useRef<HTMLCanvasElement>(null);
+	const chessPiecesRef = useRef<HTMLCanvasElement>(null);
+	const chessUiRef = useRef<HTMLCanvasElement>(null);
+	const offscreenRef = useRef<HTMLCanvasElement>(null);
 
 	const [mouseBoardPos, setMouseBoardPos] = useState<Pos | null>(null);
 	const [dragStartBoardPos, setDragStartBoardPos] = useState<Pos | null>(null);
@@ -175,8 +175,10 @@ export function ChessBoard({
 	};
 
 	useEffect(() => {
+		console.log('drawing board');
+
 		const canvas = chessBoardRef.current;
-		const context = canvas?.getContext('2d');
+		const context = canvas?.getContext('2d', { alpha: false });
 
 		if (!context) {
 			console.warn('could not acquire context');
@@ -198,6 +200,7 @@ export function ChessBoard({
 	}, [chessBoardRef]);
 
 	useEffect(() => {
+		console.log('drawing pieces');
 		const canvas = chessPiecesRef.current;
 		const context = canvas?.getContext('2d');
 
@@ -205,6 +208,7 @@ export function ChessBoard({
 			console.warn('could not acquire context');
 			return;
 		}
+
 		context.clearRect(0, 0, WIDTH, HEIGHT);
 		for (const pieceLoc of pieceLocations) {
 			drawPiece(context, pieceLoc[0], fromBoardPos(pieceLoc[1]));
@@ -212,6 +216,7 @@ export function ChessBoard({
 	}, [chessPiecesRef, pieceLocations, drawPiece]);
 
 	useEffect(() => {
+		console.log('drawing ui');
 		const canvas = chessUiRef.current;
 		const context = canvas?.getContext('2d');
 
@@ -253,6 +258,8 @@ export function ChessBoard({
 
 		// No point creating images if our sprite isn't ready
 		if (!piecesSpriteReady) return;
+
+		console.log('creating drag images');
 
 		const canvas = offscreenRef.current;
 		if (!canvas) return;
