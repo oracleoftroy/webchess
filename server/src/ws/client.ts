@@ -16,7 +16,7 @@ export class Client {
 		};
 
 		client.onmessage = (e: MessageEvent): void => {
-			log.info(`Message recieved: {e.data}`);
+			log.info(`Message received: ${e.data}`);
 
 			try {
 				const json = JSON.parse(e.data);
@@ -43,11 +43,15 @@ export class Client {
 		}
 	}
 
-	get username(): string | undefined {
-		return this.name;
+	get valid(): boolean {
+		return !!this.name && !!this.id;
 	}
 
-	get userid(): string | undefined {
-		return this.id;
+	get username(): string {
+		return this.name || '';
+	}
+
+	get userid(): string {
+		return this.id || '';
 	}
 }
