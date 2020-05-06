@@ -209,10 +209,14 @@ export const ChessUi = forwardRef<ChessUiRef, ChessUiProps>(
 				{choosePromotion && (
 					<div className="overlay">
 						<section className="chessboard-promotion">
-							<header>Choose Promotion</header>
+							<header>
+								<p>Choose Promotion</p>
+							</header>
 							{promotablePieces.map((piece) => (
 								<div key={piece} onClick={(): void => promoteTo(piece)} role="button">
-									<ChessPieceImg color={playerSide} piece={piece} />
+									<div className="chessboard-promotion-piece">
+										<ChessPieceImg color={playerSide} piece={piece} />
+									</div>
 									<p>{Pieces[piece]}</p>
 								</div>
 							))}

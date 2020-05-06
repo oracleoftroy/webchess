@@ -10,5 +10,5 @@ interface ChessPieceImgProps {
 export function ChessPieceImg({ color, piece }: ChessPieceImgProps): JSX.Element {
 	const className = `chessgame-piece-img ${Sides[color].toLowerCase()}-${Pieces[piece].toLowerCase()}`;
 
-	return <img className={className} src={ChessPieces} alt="queen" />;
+	return <img className={className} src={ChessPieces} alt={`${Sides[color]} ${Pieces[piece]}`} />;
 }
