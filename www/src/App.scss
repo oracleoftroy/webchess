@@ -1,7 +1,17 @@
+$dark-background: #03464a;
+$dark-header: #236669;
+
+@import url('https://fonts.googleapis.com/css2?family=Arvo&display=swap');
+
+.app {
+	border: none;
+	border-radius: 15px;
+	box-shadow: 0 0 3em rgba(0, 0, 0, 1);
+}
 .app > header {
 	text-align: center;
 
-	background-color: #282c34;
+	background-color: $dark-background;
 	min-height: 20vh;
 	display: flex;
 	flex-direction: column;
@@ -9,16 +19,42 @@
 	justify-content: center;
 	font-size: calc(10px + 2vmin);
 	color: white;
+	border: solid 1px #000;
 	border-radius: 15px 15px 0 0;
 }
 
 .app > main {
 	padding: 20px;
-	border: 2px solid #282c34;
+	border: solid 1px #000;
+	display: flex;
+	columns: 2;
+	.content {
+		display: flex;
+		columns: auto;
+	}
+
+	.content:first-child {
+		margin-left: auto;
+	}
+
+	.content:last-child {
+		margin-right: auto;
+	}
+
+	header {
+		text-align: center;
+		display: block;
+		background-color: $dark-header;
+		color: #fff;
+		font-size: 1.1em;
+		padding: 4px 0;
+		text-transform: capitalize;
+		font-family: 'Arvo';
+	}
 }
 
 .app > footer {
-	background-color: #282c34;
+	background-color: $dark-background;
 	color: white;
 	min-height: 4vh;
 	font-size: 0.7em;
@@ -28,6 +64,7 @@
 	align-items: center;
 	justify-content: center;
 	padding: 10px;
+	border: solid 1px rgba(0, 0, 0, 0.15);
 	border-radius: 0 0 15px 15px;
 }
 

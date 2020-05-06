@@ -29,7 +29,10 @@ export class Client {
 	}
 
 	send(response: Response): void {
-		this.client.send(JSON.stringify(response));
+		const msg = JSON.stringify(response);
+		log.info(`Sending response: ${msg}`);
+
+		this.client.send(msg);
 	}
 
 	onUserInfo(info: UserInfoRequest): void {

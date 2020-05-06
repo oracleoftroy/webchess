@@ -52,7 +52,7 @@ export class WsClient {
 
 	// callback for websocket onopen
 	private open() {
-		for (let req of this.pendingMessages) {
+		for (const req of this.pendingMessages) {
 			this.send(req);
 		}
 		this.pendingMessages = [];

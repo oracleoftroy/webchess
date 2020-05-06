@@ -1,6 +1,28 @@
 .chat-section {
 	display: flex;
 	flex-direction: column;
+	border: 1px solid #282c34;
+	height: 640px;
+
+	section.messages {
+		align-self: stretch;
+		padding: 0px;
+		margin: 0px;
+
+		display: flex;
+		flex-direction: column-reverse;
+		overflow-y: auto;
+		flex-grow: 1;
+
+		.message-wrapper {
+			display: flex;
+			flex-direction: column;
+		}
+	}
+
+	article {
+		padding: 2px 12px;
+	}
 
 	p {
 		margin: 0.25em 0;
@@ -8,24 +30,29 @@
 }
 
 .chat-message {
-	display: inline-flex;
-	flex-direction: row;
-	align-items: baseline;
-
 	address {
-		display: inline;
+		display: inline-block;
+		font-weight: bold;
+	}
+
+	.author {
 		font-weight: bold;
 	}
 }
 
 .chat-join-message,
 .chat-leave-message {
-	display: inline-flex;
-	flex-direction: row;
-	align-items: baseline;
 	font-style: italic;
+
 	address {
 		display: inline;
-		padding-right: 0.125em;
+	}
+}
+
+.form-elements {
+	display: flex;
+	div {
+		flex-grow: 1;
+		width: 100%;
 	}
 }

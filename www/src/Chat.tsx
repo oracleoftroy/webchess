@@ -23,17 +23,25 @@ interface LeaveChatProps {
 function ChatMsg({ res }: ChatMsgProps): JSX.Element {
 	return (
 		<article className="chat-message">
-			<address>{res.username}</address>: {res.msg}
+			<address className="author">{res.username}:</address> {res.msg}
 		</article>
 	);
 }
 
 function JoinChat({ res }: JoinChatProps): JSX.Element {
-	return <article className="chat-join-message">{res.username} has joined the chat</article>;
+	return (
+		<article className="chat-join-message">
+			<address className="author">{res.username}</address> has joined the chat
+		</article>
+	);
 }
 
 function LeaveChat({ res }: LeaveChatProps): JSX.Element {
-	return <article className="chat-leave-message">{res.username} has left the chat</article>;
+	return (
+		<article className="chat-leave-message">
+			<address className="author">{res.username}</address> has left the chat
+		</article>
+	);
 }
 
 export function Chat({ channel, messages, onSendChatRequest }: Props): JSX.Element {
@@ -51,21 +59,29 @@ export function Chat({ channel, messages, onSendChatRequest }: Props): JSX.Eleme
 	};
 	return (
 		<section className="chat-section">
-			<title>{channel}</title>
-			{messages.map((message, index) =>
-				message.type === 'chat' ? (
-					<ChatMsg key={index} res={message} />
-				) : message.type === 'chat-join' ? (
-					<JoinChat key={index} res={message} />
-				) : message.type === 'chat-leave' ? (
-					<LeaveChat key={index} res={message} />
-				) : (
-					''
-				),
-			)}
+			<header>{channel}</header>
+			<section className="messages">
+				<div className="message-wrapper">
+					{messages.map((message, index) =>
+						message.type === 'chat' ? (
+							<ChatMsg key={index} res={message} />
+						) : message.type === 'chat-join' ? (
+							<JoinChat key={index} res={message} />
+						) : message.type === 'chat-leave' ? (
+							<LeaveChat key={index} res={message} />
+						) : (
+							''
+						),
+					)}
+				</div>
+			</section>
 			<form onSubmit={onSendMessage}>
-				<input type="text" name="message" required placeholder="Enter your message" />
-				<input type="submit" value="Send" />
+				<div className="form-elements">
+					<div>
+						<input type="text" name="message" required placeholder="Enter your message" />
+					</div>
+					<input type="submit" value="Send" />
+				</div>
 			</form>
 		</section>
 	);

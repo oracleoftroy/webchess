@@ -19,15 +19,21 @@ export interface ObserveGameRequest {
 	gameId: string;
 }
 
+export interface UnobserveGameRequest {
+	type: 'unobserve-game';
+	gameId: string;
+}
+
 export interface MoveRequest {
 	type: 'move';
 	gameId: string;
-	auth: string;
+	token: string;
 	moveNum: number;
 	move: string;
 }
 
-export type Request = UserInfoRequest | SendChatRequest | JoinGameRequest | ObserveGameRequest | MoveRequest;
+export type GameRequest = JoinGameRequest | MoveRequest | ObserveGameRequest | UnobserveGameRequest;
+export type Request = UserInfoRequest | SendChatRequest | GameRequest;
 
 export interface ErrorResponse {
 	type: 'error';
@@ -50,8 +56,8 @@ export interface FindGameResponse {
 export interface JoinGameResponse {
 	type: 'join-game';
 	gameId: string;
-	auth: string;
-	side: 'black' | 'white';
+	token: string;
+	side: 'w' | 'b';
 	opponent: string;
 	opponentid: string;
 }
@@ -91,15 +97,6 @@ export interface MoveResponse {
 	move: string;
 }
 
-export type Response =
-	| ErrorResponse
-	| UserInfoResponse
-	| FindGameResponse
-	| JoinGameResponse
-	| ObserveGameResponse
-	| JoinChatResponse
-	| LeaveChatResponse
-	| ReceiveChatResponse
-	| MoveResponse;
-
 export type ChatResponse = JoinChatResponse | LeaveChatResponse | ReceiveChatResponse;
+export type GameResponse = FindGameResponse | JoinGameResponse | ObserveGameResponse | MoveResponse;
+export type Response = ErrorResponse | UserInfoResponse | ChatResponse | GameResponse;

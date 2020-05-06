@@ -123,19 +123,6 @@ section.chessgame-state {
 	text-align: center;
 }
 
-.chessgame-container header {
-	text-align: center;
-	background-color: #282c34;
-	min-height: 5%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	font-size: 1.1em;
-	color: white;
-	padding: 4px 0;
-}
-
 section.chessgame-history {
 	align-self: stretch;
 	padding: 0px;
@@ -146,17 +133,30 @@ section.chessgame-history {
 	flex-direction: column-reverse;
 }
 
-section.chessgame-history > ol {
+section.chessgame-history ol.content {
 	counter-reset: move-counter;
 	list-style: none;
 	list-style-position: outside;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	overflow: auto;
+	//	padding-left: auto;
+	// align-items: center;
+	// text-align: center;
+	// margin-left: auto;
+	// margin-right: auto;
+
 	li {
 		counter-increment: move-counter;
 		font-weight: 500;
-
-		margin-left: 2em;
+		margin-left: 3em;
 		position: relative;
 		min-height: 1.2em;
+		overflow-anchor: none;
+	}
+	li:last-child {
+		overflow-anchor: auto;
 	}
 	li::before {
 		content: '#' counter(move-counter) ': ';
@@ -168,17 +168,6 @@ section.chessgame-history > ol {
 	}
 }
 
-section.chessgame-history header {
-	padding: 0px;
-	display: block;
-	background-color: #282c34;
-	color: #fff;
-}
-
-section.chessgame-history article {
-	text-align: center;
-	padding: 2px 8px;
-}
 .chessgame-invalid-move {
 	background-color: #fdd;
 	border-radius: 10% / 90%;

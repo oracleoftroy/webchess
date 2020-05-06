@@ -1,22 +1,126 @@
 import './App.scss';
-import React, { useState, useEffect, FormEvent } from 'react';
-import { ChessGame } from './ChessGame';
-import { Response, ChatResponse } from './protocol';
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
+import { ChessUi, ChessUiRef } from './ChessUi';
+import { Response, ChatResponse, MoveRequest, MoveResponse } from './protocol';
 import { Chat } from './Chat';
 import { WsClient } from './WsClient';
+import { SignIn } from './SignIn';
+import { BusyIndicator } from './BusyIndicator';
+import { Sides } from './ChessUiLogic';
 
 interface User {
 	id: string | null;
 	name: string;
 }
 
+interface LobbyState {
+	mode: 'lobby';
+}
+const lobbyState: LobbyState = { mode: 'lobby' };
+
+interface LookingForGameState {
+	mode: 'looking-for-game';
+}
+const lookingForGameState: LookingForGameState = { mode: 'looking-for-game' };
+
+interface InGameState {
+	mode: 'in-game';
+	gameid: string;
+	playerToken: string;
+	playerSide: 'w' | 'b';
+	opponent: string;
+	opponentid: string;
+}
+
+interface ObservingGameState {
+	mode: 'observing-game';
+	gameid: string;
+}
+
+type GameState = LobbyState | LookingForGameState | InGameState | ObservingGameState;
+
+interface ChessGameProps {
+	playerName: string;
+	gameState: GameState;
+	onLookForGame: () => void;
+	onMoveRequested: (move: MoveRequest) => void;
+}
+
+const ChessGame = forwardRef<ChessUiRef, ChessGameProps>(
+	({ playerName, gameState, onLookForGame, onMoveRequested }: ChessGameProps, ref): JSX.Element => {
+		const lookForGame = (event: React.MouseEvent<HTMLButtonElement>): void => {
+			event.preventDefault();
+			onLookForGame();
+		};
+
+		if (gameState === lobbyState) {
+			return (
+				<section>
+					<button className="button" onClick={lookForGame}>
+						Look for game
+					</button>
+				</section>
+			);
+		} else if (gameState === lookingForGameState) {
+			return (
+				<div>
+					<p>Looking for game</p>
+					<BusyIndicator />
+				</div>
+			);
+		} else if (gameState.mode === 'in-game') {
+			const playerSide = gameState.playerSide === 'w' ? Sides.White : Sides.Black;
+			const blackPlayerName = playerSide === Sides.Black ? playerName : gameState.opponent;
+			const whitePlayerName = playerSide === Sides.White ? playerName : gameState.opponent;
+
+			const chessRef = useRef<ChessUiRef>(null);
+
+			useImperativeHandle(ref, () => ({
+				move(move: MoveResponse): boolean {
+					console.log(`move: ${move}`);
+					if (chessRef.current === null || move.gameId !== gameState.gameid) {
+						return false;
+					}
+					return chessRef.current.move(move);
+				},
+			}));
+
+			const moveRequested = (num: number, san: string): void => {
+				onMoveRequested({
+					type: 'move',
+					gameId: gameState.gameid,
+					token: gameState.playerToken,
+					moveNum: num,
+					move: san,
+				});
+			};
+
+			return (
+				<ChessUi
+					ref={chessRef}
+					playerSide={playerSide}
+					blackPlayerName={blackPlayerName}
+					whitePlayerName={whitePlayerName}
+					onMoveRequested={moveRequested}
+				/>
+			);
+		} else {
+			return <div />;
+		}
+	},
+);
+
 // TODO: Have some sort of visual overlay when websocket is not open (connecting, closed, error)
 function App(): JSX.Element {
 	//	const [state, setState] = useState('disconnected' as ClientState);
 	const [user, setUser] = useState<User | null>(null);
 	const [chat, setChat] = useState([] as ChatResponse[]);
+	const [gameState, setGameState] = useState<GameState>(lobbyState);
+	//const [gameState, setGameState] = useState<GameState>(lookingForGameState);
+	const chessGameRef = useRef<ChessUiRef>(null);
 
 	const [client] = useState(() => {
+		console.debug('Creating Client');
 		const client = new WsClient();
 
 		client.onReset = () => setUser(null);
@@ -47,6 +151,29 @@ function App(): JSX.Element {
 				case 'chat-leave':
 					setChat((c) => [...c, res]);
 					break;
+
+				case 'finding-game':
+					setGameState(lookingForGameState);
+					break;
+				case 'join-game':
+					setGameState({
+						mode: 'in-game',
+						gameid: res.gameId,
+						playerSide: res.side,
+						playerToken: res.token,
+						opponent: res.opponent,
+						opponentid: res.opponentid,
+					});
+					break;
+
+				case 'move':
+					console.log('Got move');
+					if (chessGameRef.current) {
+						console.log('chessGameRef is good');
+						const result = chessGameRef.current.move(res);
+						console.log(`Move succeeded?: ${result}`);
+					}
+					break;
 			}
 		};
 
@@ -65,25 +192,22 @@ function App(): JSX.Element {
 			}
 		} else if (user) {
 			// user set by response from server, cache in local storage
-			console.log('running user effect');
 			localStorage.setItem('username', user.name);
 			if (user.id) localStorage.setItem('userid', user.id);
 			else localStorage.removeItem('userid');
 		}
 	}, [user, client]);
 
-	const onSignIn = (event: FormEvent) => {
-		event.preventDefault();
-		event.stopPropagation();
+	const onSignIn = (username: string) => {
+		client.send({ type: 'user-info', username: username });
+	};
 
-		const target = event.target as HTMLFormElement;
-		const data = new FormData(target);
-		target.reset();
+	const lookForGame = (): void => {
+		client.send({ type: 'join-game' });
+	};
 
-		const username = data.get('username') as string | null;
-		if (username) {
-			client.send({ type: 'user-info', username: username });
-		}
+	const moveRequested = (move: MoveRequest): void => {
+		client.send(move);
 	};
 
 	return (
@@ -92,21 +216,16 @@ function App(): JSX.Element {
 				<h1>Chess</h1>
 			</header>
 			<main>
-				{(user === null && (
-					<div>
-						<section>
-							<header>Please sign in</header>
-							<form onSubmit={onSignIn}>
-								<label htmlFor="username">Display name: </label>
-								<input name="username" type="text" required placeholder="Your name"></input>
-								<input type="submit" value="Sign in"></input>
-							</form>
-						</section>
-					</div>
-				)) || (
-					<section>
-						<Chat channel="global" messages={chat} onSendChatRequest={client.send.bind(client)}></Chat>
-						<ChessGame></ChessGame>
+				{(user === null && <SignIn onSignIn={onSignIn} />) || (
+					<section className="content">
+						<Chat channel="global" messages={chat} onSendChatRequest={client.send.bind(client)} />
+						<ChessGame
+							ref={chessGameRef}
+							playerName={user?.name!}
+							gameState={gameState}
+							onLookForGame={lookForGame}
+							onMoveRequested={moveRequested}
+						/>
 					</section>
 				)}
 			</main>

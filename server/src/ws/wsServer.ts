@@ -4,20 +4,15 @@ import http from 'http';
 import https from 'https';
 import { log } from '../logger';
 import { Channel } from './channel';
-import {
-	Request,
-	SendChatRequest,
-	JoinGameRequest,
-	MoveRequest,
-	ObserveGameRequest,
-	UserInfoRequest,
-} from './protocol';
+import { Request, SendChatRequest, UserInfoRequest, GameRequest } from './protocol';
 import { Client } from './client';
 import { Dispatcher } from './dispatcher';
+import { ChessServer } from './chessServer';
 
 export class WsServer implements Dispatcher {
 	private wsServer: Server;
 	private channel: Channel = new Channel('global');
+	private chessServer: ChessServer = new ChessServer();
 
 	constructor(server: http.Server | https.Server) {
 		this.wsServer = new Server({ server: server });
@@ -36,18 +31,17 @@ export class WsServer implements Dispatcher {
 	}
 
 	onRequest(client: Client, request: Request): void {
+		if (!this.validate(client, request)) return;
+
 		switch (request.type) {
 			case 'chat':
 				this.chatMessage(client, request as SendChatRequest);
 				break;
 			case 'join-game':
-				this.joinGame(client, request as JoinGameRequest);
-				break;
 			case 'move':
-				this.move(client, request as MoveRequest);
-				break;
 			case 'observe-game':
-				this.observeGame(client, request as ObserveGameRequest);
+			case 'unobserve-game':
+				this.chessServer.onRequest(client, request as GameRequest);
 				break;
 			case 'user-info':
 				this.userCredentials(client, request as UserInfoRequest);
@@ -58,10 +52,21 @@ export class WsServer implements Dispatcher {
 	onDisconnect(client: Client): void {
 		// TODO: close any games, etc the client is in
 		this.channel.removeClient(client);
+		this.chessServer.removeClient(client);
 	}
 
 	private onWebsockedConnected(ws: WebSocket): void {
 		new Client(ws, this);
+	}
+
+	// Client must set user-info before any other requests are accepted
+	validate(client: Client, req: Request): boolean {
+		if (!client.valid && req.type !== 'user-info') {
+			client.send({ type: 'error', req: req.type, msg: 'Unauthorized' });
+			return false;
+		}
+
+		return true;
 	}
 
 	userCredentials(client: Client, request: UserInfoRequest): void {
@@ -76,17 +81,5 @@ export class WsServer implements Dispatcher {
 		if (request.channel === 'global') {
 			this.channel.onChat(client, request);
 		}
-	}
-
-	joinGame(client: Client, request: JoinGameRequest): void {
-		throw new Error('Method not implemented.');
-	}
-
-	move(client: Client, request: MoveRequest): void {
-		throw new Error('Method not implemented.');
-	}
-
-	observeGame(client: Client, request: ObserveGameRequest): void {
-		throw new Error('Method not implemented.');
 	}
 }
