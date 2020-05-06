@@ -16,6 +16,7 @@ class Stream {
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function errorHandler(err: Error, req: Request, res: Response, next: NextFunction): void {
 	log.error(err);
 	res.status(500).json({ error: err }).end();

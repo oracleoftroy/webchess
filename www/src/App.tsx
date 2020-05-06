@@ -46,69 +46,74 @@ interface ChessGameProps {
 	onMoveRequested: (move: MoveRequest) => void;
 }
 
-const ChessGame = forwardRef<ChessUiRef, ChessGameProps>(
-	({ playerName, gameState, onLookForGame, onMoveRequested }: ChessGameProps, ref): JSX.Element => {
-		const lookForGame = (event: React.MouseEvent<HTMLButtonElement>): void => {
-			event.preventDefault();
-			onLookForGame();
+const ChessGame = forwardRef<ChessUiRef, ChessGameProps>(function ChessGame(
+	{ playerName, gameState, onLookForGame, onMoveRequested }: ChessGameProps,
+	ref,
+): JSX.Element {
+	const chessRef = useRef<ChessUiRef>(null);
+	useImperativeHandle(ref, () => ({
+		move(move: MoveResponse): boolean {
+			console.log(`move: ${move}`);
+			if (gameState.mode !== 'in-game') {
+				return false;
+			}
+
+			if (chessRef.current === null || move.gameId !== gameState.gameid) {
+				return false;
+			}
+
+			return chessRef.current.move(move);
+		},
+	}));
+
+	const lookForGame = (event: React.MouseEvent<HTMLButtonElement>): void => {
+		event.preventDefault();
+		onLookForGame();
+	};
+
+	if (gameState === lobbyState) {
+		return (
+			<section>
+				<button className="button" onClick={lookForGame}>
+					Look for game
+				</button>
+			</section>
+		);
+	} else if (gameState === lookingForGameState) {
+		return (
+			<div>
+				<p>Looking for game</p>
+				<BusyIndicator />
+			</div>
+		);
+	} else if (gameState.mode === 'in-game') {
+		const playerSide = gameState.playerSide === 'w' ? Sides.White : Sides.Black;
+		const blackPlayerName = playerSide === Sides.Black ? playerName : gameState.opponent;
+		const whitePlayerName = playerSide === Sides.White ? playerName : gameState.opponent;
+
+		const moveRequested = (num: number, san: string): void => {
+			onMoveRequested({
+				type: 'move',
+				gameId: gameState.gameid,
+				token: gameState.playerToken,
+				moveNum: num,
+				move: san,
+			});
 		};
 
-		if (gameState === lobbyState) {
-			return (
-				<section>
-					<button className="button" onClick={lookForGame}>
-						Look for game
-					</button>
-				</section>
-			);
-		} else if (gameState === lookingForGameState) {
-			return (
-				<div>
-					<p>Looking for game</p>
-					<BusyIndicator />
-				</div>
-			);
-		} else if (gameState.mode === 'in-game') {
-			const playerSide = gameState.playerSide === 'w' ? Sides.White : Sides.Black;
-			const blackPlayerName = playerSide === Sides.Black ? playerName : gameState.opponent;
-			const whitePlayerName = playerSide === Sides.White ? playerName : gameState.opponent;
-
-			const chessRef = useRef<ChessUiRef>(null);
-
-			useImperativeHandle(ref, () => ({
-				move(move: MoveResponse): boolean {
-					console.log(`move: ${move}`);
-					if (chessRef.current === null || move.gameId !== gameState.gameid) {
-						return false;
-					}
-					return chessRef.current.move(move);
-				},
-			}));
-
-			const moveRequested = (num: number, san: string): void => {
-				onMoveRequested({
-					type: 'move',
-					gameId: gameState.gameid,
-					token: gameState.playerToken,
-					moveNum: num,
-					move: san,
-				});
-			};
-
-			return (
-				<ChessUi
-					ref={chessRef}
-					playerSide={playerSide}
-					blackPlayerName={blackPlayerName}
-					whitePlayerName={whitePlayerName}
-					onMoveRequested={moveRequested}
-				/>
-			);
-		} else {
-			return <div />;
-		}
-	},
-);
+		return (
+			<ChessUi
+				ref={chessRef}
+				playerSide={playerSide}
+				blackPlayerName={blackPlayerName}
+				whitePlayerName={whitePlayerName}
+				onMoveRequested={moveRequested}
+			/>
+		);
+	} else {
+		return <div />;
+	}
+});
 
 // TODO: Have some sort of visual overlay when websocket is not open (connecting, closed, error)
 function App(): JSX.Element {

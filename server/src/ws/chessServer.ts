@@ -164,7 +164,7 @@ export class ChessServer {
 		}
 	}
 
-	removeClient(client: Client) {
+	removeClient(client: Client): void {
 		const pendingIndex = this.pendingClients.findIndex((c) => c.userid === client.userid);
 		if (pendingIndex >= 0) {
 			this.pendingClients.splice(pendingIndex, 1);

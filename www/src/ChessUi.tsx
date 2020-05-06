@@ -115,17 +115,6 @@ export const ChessUi = forwardRef<ChessUiRef, ChessUiProps>(
 		const [errorLastMove, setErrorLastMove] = useState(false);
 		const [choosePromotion, setChoosePromotion] = useState<PendingMove | null>(null);
 
-		useImperativeHandle(ref, () => ({
-			move(move: MoveResponse): boolean {
-				if (move.moveNum !== chess.history().length + 1) {
-					return false;
-				}
-				const result = chess.move(move.move) !== null;
-				updateGameState(result === null);
-				return result !== null;
-			},
-		}));
-
 		const posToSAN = (pos: Pos): Square =>
 			// 97 -> 'a'
 			playerSide === Sides.White
@@ -160,6 +149,17 @@ export const ChessUi = forwardRef<ChessUiRef, ChessUiProps>(
 
 			setPossibleMoves(possibilities);
 		};
+
+		useImperativeHandle(ref, () => ({
+			move(move: MoveResponse): boolean {
+				if (move.moveNum !== chess.history().length + 1) {
+					return false;
+				}
+				const result = chess.move(move.move) !== null;
+				updateGameState(result === null);
+				return result !== null;
+			},
+		}));
 
 		const onMoveCompleted = (from: Pos, to: Pos): void => {
 			const fromSAN = posToSAN(from);
