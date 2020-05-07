@@ -1,8 +1,5 @@
 $dark-background: #03464a;
 $dark-header: #236669;
-
-@import url('https://fonts.googleapis.com/css2?family=Arvo&display=swap');
-
 .app {
 	border: none;
 	border-radius: 15px;
@@ -30,6 +27,7 @@ $dark-header: #236669;
 	columns: 2;
 	.content {
 		display: flex;
+		flex-direction: column-reverse;
 		columns: auto;
 	}
 
@@ -73,4 +71,28 @@ $dark-header: #236669;
 }
 .app > footer p {
 	margin: 2px;
+}
+
+button {
+	border: 1px solid #aaa;
+	border-radius: 5px;
+	background-color: #eee;
+	padding: 15px 25px;
+	margin: 10px;
+	font-size: 1rem;
+	transition: ease-in 100ms border, background-color;
+}
+
+button:hover {
+	border: 1px solid #282c34;
+	background-color: #ddd;
+}
+
+input[type='button'],
+input[type='submit'] {
+	border: 1px solid #aaa;
+	background-color: #eee;
+	padding: 6px 12px;
+	font-size: 1rem;
+	transition: ease-in 100ms border, background-color;
 }

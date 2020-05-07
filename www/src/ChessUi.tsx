@@ -1,4 +1,4 @@
-import './ChessGame.scss';
+import './ChessUi.scss';
 import ChessPieces from './Chess_Pieces_Sprite.svg';
 import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { ChessBoard } from './ChessBoard';

@@ -59,7 +59,7 @@ export function Chat({ channel, messages, onSendChatRequest }: Props): JSX.Eleme
 	};
 	return (
 		<section className="chat-section">
-			<header>{channel}</header>
+			<header>{channel} Chat</header>
 			<section className="messages">
 				<div className="message-wrapper">
 					{messages.map((message, index) =>
@@ -75,7 +75,7 @@ export function Chat({ channel, messages, onSendChatRequest }: Props): JSX.Eleme
 					)}
 				</div>
 			</section>
-			<form onSubmit={onSendMessage}>
+			<form onSubmit={onSendMessage} autoComplete="off">
 				<div className="form-elements">
 					<div>
 						<input type="text" name="message" required placeholder="Enter your message" />
