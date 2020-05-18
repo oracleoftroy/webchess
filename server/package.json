@@ -8,7 +8,7 @@
 		"run-lint": "eslint --fix \"*/**/*.{js,ts,tsx,json}\"",
 		"prelint": "npm run build-check",
 		"lint": "npm run run-lint",
-		"prebuild": "run-lint",
+		"prebuild": "npm run run-lint",
 		"build": "tsc",
 		"prestart-prod": "npm run build",
 		"start-prod": "node .",
