@@ -5,7 +5,6 @@ import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import path from 'path';
 import { config } from './config';
 import { log } from './logger';
 import { WsServer } from './ws/wsServer';
@@ -35,7 +34,11 @@ export class Server {
 		app.use(cookieParser());
 		app.use(bodyParser.json());
 
-		app.use('/', express.static(path.join(__dirname, '../../www/build')));
+		app.get('/', (req, res) => {
+			res.json({
+				msg: 'Welcome to the WebChess api.',
+			});
+		});
 
 		app.get('/test', (req, res) => {
 			res.json({

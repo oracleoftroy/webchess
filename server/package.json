@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"build-check": "tsc --noEmit",
-		"run-lint": "eslint --fix \"*/**/*.{js,ts,tsx,json}\"",
+		"run-lint": "eslint --fix \"src/**/*.{js,ts,tsx,json}\"",
 		"prelint": "npm run build-check",
 		"lint": "npm run run-lint",
 		"prebuild": "npm run run-lint",
@@ -26,6 +26,7 @@
 		"express": "^4.17.1",
 		"helmet": "^3.22.0",
 		"morgan": "^1.10.0",
+		"tslib": "^2.0.0",
 		"uuid": "^8.0.0",
 		"winston": "^3.2.1",
 		"ws": "^7.3.0"
