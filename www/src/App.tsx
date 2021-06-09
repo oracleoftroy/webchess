@@ -1,5 +1,6 @@
 import './App.scss';
 import React, { useState, useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { ChessUi, ChessUiRef } from './ChessUi';
 import { Response, ChatResponse, MoveRequest, MoveResponse } from './protocol';
 import { Chat } from './Chat';
@@ -115,6 +116,22 @@ const ChessGame = forwardRef<ChessUiRef, ChessGameProps>(function ChessGame(
 	}
 });
 
+ChessGame.propTypes = {
+	playerName: PropTypes.any,
+
+	// HACK?? - I think this should be:
+	// gameState: PropTypes.instanceOf(GameState),
+	gameState: PropTypes.any,
+
+	// HACK?? - I think this should be:
+	// onLookForGame: PropTypes.func,
+	onLookForGame: PropTypes.any,
+
+	// HACK?? - I think this should be:
+	//onMoveRequested: PropTypes.func,
+	onMoveRequested: PropTypes.any,
+};
+
 // TODO: Have some sort of visual overlay when websocket is not open (connecting, closed, error)
 function App(): JSX.Element {
 	//	const [state, setState] = useState('disconnected' as ClientState);
@@ -221,12 +238,12 @@ function App(): JSX.Element {
 				<h1>Chess</h1>
 			</header>
 			<main>
-				{(user === null && <SignIn onSignIn={onSignIn} />) || (
+				{user === null ? (<SignIn onSignIn={onSignIn} />) : (
 					<section className="content">
 						<Chat channel="global" messages={chat} onSendChatRequest={client.send.bind(client)} />
 						<ChessGame
 							ref={chessGameRef}
-							playerName={user?.name!}
+							playerName={user.name}
 							gameState={gameState}
 							onLookForGame={lookForGame}
 							onMoveRequested={moveRequested}

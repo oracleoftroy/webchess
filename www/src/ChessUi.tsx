@@ -184,6 +184,10 @@ export const ChessUi = forwardRef<ChessUiRef, ChessUiProps>(
 		const promotablePieces: PromotablePiece[] = [Pieces.Queen, Pieces.Rook, Pieces.Bishop, Pieces.Knight];
 
 		const promoteTo = (piece: PromotablePiece): void => {
+			if (!choosePromotion) {
+				return;
+			}
+
 			let p: null | 'n' | 'b' | 'r' | 'q' = null;
 
 			p = piece === Pieces.Queen ? 'q' : piece === Pieces.Rook ? 'r' : piece === Pieces.Bishop ? 'b' : 'n';
@@ -195,7 +199,7 @@ export const ChessUi = forwardRef<ChessUiRef, ChessUiProps>(
 			// 	promotion: p,
 			// } as ShortMove);
 
-			const [result, san] = moveToSAN(chess, choosePromotion?.from!, choosePromotion?.to!, p);
+			const [result, san] = moveToSAN(chess, choosePromotion.from, choosePromotion.to, p);
 			if (result === ValidationResult.Valid) {
 				onMoveRequested(chess.history().length + 1, san!);
 				updateGameState(false);
