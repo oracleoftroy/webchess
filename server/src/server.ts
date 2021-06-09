@@ -1,4 +1,3 @@
-import bodyParser from 'body-parser';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -32,7 +31,7 @@ export class Server {
 		app.use(helmet());
 		app.use(cors());
 		app.use(cookieParser());
-		app.use(bodyParser.json());
+		app.use(express.json());
 
 		app.get('/', (req, res) => {
 			res.json({
